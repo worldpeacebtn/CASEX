@@ -1,0 +1,444 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Criminal Case Portal</title>
+
+<!-- Tailwind for typography only -->
+<script src="https://cdn.tailwindcss.com"></script>
+
+<style>
+/* -------------------------
+   GLOBAL BASE STYLES
+-------------------------- */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Orbitron', 'Courier New', monospace;
+  background: radial-gradient(circle at 50% 40%, #120026, #060014 80%);
+  color: #e0e0ff;
+  min-height: 100vh;
+  overflow-x: hidden;
+  position: relative;
+}
+
+html, body { height: 100%; }
+
+/* ===========================
+    HOLOGRAPHIC BACKGROUND
+=========================== */
+
+.grid-background {
+  position: fixed;
+  width: 100%; height: 100%;
+  top: 0; left: 0;
+  background-image:
+    linear-gradient(rgba(138,43,226,0.08) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(138,43,226,0.08) 1px, transparent 1px);
+  background-size: 50px 50px;
+  animation: gridMove 22s linear infinite;
+  z-index: 0;
+  pointer-events: none;
+}
+
+@keyframes gridMove {
+  0%   { transform: translate(0,0); }
+  100% { transform: translate(50px,50px); }
+}
+
+.holo-overlay {
+  position: fixed;
+  width: 100%; height: 100%;
+  top: 0; left: 0;
+  background: radial-gradient(circle, rgba(157,78,221,0.15), transparent 70%);
+  mix-blend-mode: screen;
+  pointer-events: none;
+  z-index: 1;
+  animation: holoPulse 4s ease-in-out infinite;
+}
+@keyframes holoPulse {
+  0%,100% { opacity: 0.3; }
+  50%     { opacity: 0.6; }
+}
+
+/* -------------------------
+   HEADERS
+-------------------------- */
+header {
+  text-align: center;
+  margin-bottom: 60px;
+  z-index: 2;
+  position: relative;
+}
+
+h1 {
+  font-size: 64px;
+  background: linear-gradient(45deg, #c77dff, #9d4edd, #7b2cbf);
+  -webkit-text-fill-color: transparent;
+  -webkit-background-clip: text;
+  text-shadow: 0 0 40px #9d4edd;
+  animation: neonPulse 2.5s infinite ease-in-out;
+}
+
+@keyframes neonPulse {
+  0%,100% { filter: brightness(1); }
+  50%     { filter: brightness(1.35); }
+}
+
+/* -------------------------
+   CASE CARDS
+-------------------------- */
+.case-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px,1fr));
+  gap: 40px;
+}
+
+.case-card {
+  padding: 30px;
+  background: linear-gradient(135deg, rgba(26,10,46,0.85), rgba(22,0,59,0.95));
+  border: 2px solid rgba(157,78,221,0.4);
+  box-shadow: 0 0 25px rgba(157,78,221,0.35);
+  border-radius: 15px;
+  position: relative;
+  overflow: hidden;
+  transition: 0.4s;
+}
+
+.case-card:hover {
+  transform: translateY(-10px) scale(1.02);
+  box-shadow: 0 0 45px rgba(157,78,221,0.7);
+}
+
+.action-button {
+  width: 100%;
+  margin-top: 20px;
+  padding: 15px;
+  border-radius: 10px;
+  border: 2px solid #9d4edd;
+  background: linear-gradient(130deg, #7b2cbf66, #9d4edd99);
+  color: #fff;
+  font-weight: bold;
+  cursor: pointer;
+  letter-spacing: 2px;
+  transition: 0.3s;
+}
+
+.action-button:hover {
+  background: linear-gradient(130deg, #9d4eddcc, #c77dffcc);
+  box-shadow: 0 0 20px #c77dff;
+}
+
+/* ==================================================
+   MEGA FEATURE: HOLOGRAPHIC DOSSIER POPUP SYSTEM
+================================================== */
+
+.story-overlay {
+  position: fixed;
+  top: 0; left: 0;
+  width: 100vw; height: 100vh;
+  background: rgba(5,0,20,0.88);
+  backdrop-filter: blur(10px);
+  display: none;
+  justify-content: center;
+  align-items: center;
+  z-index: 9999;
+}
+
+.story-window {
+  width: 90%;
+  max-width: 850px;
+  height: 85vh;
+  background: linear-gradient(135deg, rgba(26,10,46,0.9), rgba(22,0,59,1));
+  border: 3px solid #9d4edd;
+  border-radius: 18px;
+  position: relative;
+  padding: 30px;
+  box-shadow: 0 0 70px rgba(157,78,221,0.7);
+  animation: holoOpen 0.6s ease-out forwards;
+  overflow: hidden;
+}
+
+/* Slide-in holographic opening */
+@keyframes holoOpen {
+  0%   { opacity: 0; transform: scale(0.7) translateY(40px); filter: blur(8px); }
+  100% { opacity: 1; transform: scale(1) translateY(0);      filter: blur(0); }
+}
+
+/* Scanline hologram filter */
+.story-window::after {
+  content: "";
+  position: absolute;
+  top: 0; left: 0;
+  width: 100%; height: 100%;
+  background: repeating-linear-gradient(
+    transparent 0px,
+    transparent 3px,
+    rgba(255,255,255,0.03) 4px
+  );
+  pointer-events: none;
+  animation: scan 6s linear infinite;
+}
+@keyframes scan {
+  0% { background-position: 0 0; }
+  100% { background-position: 0 200px; }
+}
+
+/* Dossier navigation */
+.dossier-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+
+.tab-btn {
+  padding: 10px 15px;
+  border: 2px solid #9d4edd;
+  border-radius: 8px;
+  background: rgba(157,78,221,0.15);
+  cursor: pointer;
+  transition: 0.3s;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+.tab-btn.active {
+  background: #9d4edd88;
+  box-shadow: 0 0 12px #9d4edd;
+}
+
+.story-title {
+  font-size: 30px;
+  color: #c77dff;
+  margin-bottom: 10px;
+}
+
+.story-page {
+  display: none;
+  height: 55vh;
+  overflow-y: auto;
+  padding-right: 15px;
+  line-height: 1.6;
+  font-size: 16px;
+}
+
+.story-page.active {
+  display: block;
+}
+
+/* Typewriter animation */
+.typewriter {
+  overflow: hidden;
+  white-space: pre-wrap;
+  border-right: 2px solid #c77dff;
+  animation: caret 0.8s step-end infinite;
+}
+
+@keyframes caret {
+  50% { border-color: transparent; }
+}
+
+/* Close Button */
+.close-popup {
+  position: absolute;
+  top: 15px;
+  right: 20px;
+  background: transparent;
+  border: none;
+  color: #c77dff;
+  font-size: 28px;
+  cursor: pointer;
+}
+</style>
+</head>
+
+<body>
+
+<div class="grid-background"></div>
+<div class="holo-overlay"></div>
+
+<div class="container mx-auto p-10 relative z-10">
+
+<header>
+  <h1>CRIMINAL INVESTIGATION</h1>
+  <p class="text-purple-300 tracking-widest mt-2">Quantum Forensics Division</p>
+</header>
+
+<!-- ================================
+    CASE GRID (unchanged)
+================================ -->
+<div class="case-grid">
+
+<div class="case-card">
+  <h3 class="case-title">Cyber Intrusion Protocol</h3>
+  <button class="action-button" data-case="1">ACCESS FILES</button>
+</div>
+
+<div class="case-card">
+  <h3 class="case-title">Digital Trace Analysis</h3>
+  <button class="action-button" data-case="2">ACCESS FILES</button>
+</div>
+
+<div class="case-card">
+  <h3 class="case-title">Quantum Signature Match</h3>
+  <button class="action-button" data-case="3">ACCESS FILES</button>
+</div>
+
+</div>
+</div>
+
+<!-- ================================
+    HOLOGRAPHIC DOSSIER POPUP
+================================ -->
+<div id="story-popup" class="story-overlay">
+  <div class="story-window">
+
+    <button class="close-popup">✖</button>
+
+    <h2 id="story-title" class="story-title"></h2>
+
+    <div class="dossier-tabs" id="tabs"></div>
+
+    <div id="story-pages"></div>
+
+  </div>
+</div>
+
+
+<script>
+/* ==========================================================
+   MULTI-PAGE DOSSIERS + TYPEWRITER + HOLOGRAPHIC EFFECTS
+========================================================== */
+
+const dossiers = {
+  1: {
+    title: "Cyber Intrusion Protocol",
+    pages: [
+      `03:17 — Unauthorized probes detected entering Sector 9-B.
+Echo-signatures indicate decoy identities deployed simultaneously.
+
+Primary Observations:
+• Quantum-salted spoof keys
+• Multi-vector intrusion attempts
+• Automated identity-switch bursts`,
+
+      `Recovered Packet Logs:
+- 14 corrupted access chains
+- 5 foreign execution patterns
+- 1 unidentified algorithmic signature
+
+Agents Alpha-7 initiated countermeasures.`,
+      
+      `Risk Level: CRITICAL
+Projected Intent: Infrastructure disruption.
+
+Full reconstruction pending clearance from central command.`
+    ]
+  },
+
+  2: {
+    title: "Digital Trace Analysis",
+    pages: [
+      `Recovered at abandoned relay hub:
+• Residual echo-patterns
+• Encrypted micro-fragments
+• Tampered time stamps`,
+
+      `Forensic results:
+- Fragment origin suggests interference unit operating in Sector 4-C
+- 72% signature alignment to Case 47-X9 operator`,
+      
+      `Conclusion:
+High probability of coordinated digital interference.
+Beta-3 requests expansion of containment perimeter.`
+    ]
+  },
+
+  3: {
+    title: "Quantum Signature Match",
+    pages: [
+      `Gamma-5 detected harmonic resonance anomalies in Sector 2-A.
+
+Signal behavior:
+• Rapid decay
+• Shifting phasing frequency
+• Sub-harmonic fluctuations`,
+
+      `Partial Spectrum Match:
+• 72% aligned with known hostile operator
+• Distorted quantum pattern likely altered artificially`,
+
+      `Conclusion:
+Unknown artifact possibly interfering with readings.
+Recommend deep-scan operation within next 48 hours.`
+    ]
+  }
+};
+
+
+// DOM Elements
+const popup = document.getElementById("story-popup");
+const titleEl = document.getElementById("story-title");
+const tabsEl = document.getElementById("tabs");
+const pagesEl = document.getElementById("story-pages");
+
+
+// Open dossier
+document.querySelectorAll(".action-button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    const id = btn.dataset.case;
+    openDossier(dossiers[id]);
+  });
+});
+
+
+// Close popup
+document.querySelector(".close-popup").onclick = () => {
+  popup.style.display = "none";
+};
+
+
+// MAIN FUNCTION — build dossier UI
+function openDossier(data) {
+  titleEl.textContent = data.title;
+  tabsEl.innerHTML = "";
+  pagesEl.innerHTML = "";
+
+  data.pages.forEach((text, index) => {
+    // Create tab
+    const tab = document.createElement("div");
+    tab.className = "tab-btn" + (index === 0 ? " active" : "");
+    tab.textContent = "PAGE " + (index + 1);
+    tab.dataset.page = index;
+    tabsEl.appendChild(tab);
+
+    // Create page
+    const page = document.createElement("div");
+    page.className = "story-page" + (index === 0 ? " active" : "");
+    page.innerHTML = `<div class="typewriter">${text}</div>`;
+    pagesEl.appendChild(page);
+  });
+
+  popup.style.display = "flex";
+
+  // Switch pages
+  document.querySelectorAll(".tab-btn").forEach(btn => {
+    btn.onclick = () => {
+      document.querySelectorAll(".tab-btn").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".story-page").forEach(p => p.classList.remove("active"));
+
+      btn.classList.add("active");
+      pagesEl.children[btn.dataset.page].classList.add("active");
+    };
+  });
+}
+
+</script>
+
+</body>
+</html>
